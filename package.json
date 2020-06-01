@@ -1,0 +1,28 @@
+{
+    "name": "twitter-stream-labels",
+    "version": "1.0.0",
+    "main": "index.js",
+    "casthub": {
+        "width": 5,
+        "height": 2,
+        "max_height": 2,
+        "max_width": 5,
+        "min_width": 5,
+        "min_height": 2,
+        "actions": "light",
+        "filesystem": {
+            "data": {
+                "filename": "data",
+                "extension": "json"
+            },
+            "recentFollowers": {
+                "filename": "recent_followers",
+                "extension": "txt"
+            },
+            "latestFollower": {
+                "filename": "latest_follower",
+                "extension": "txt"
+            }
+        }
+    }
+}
