@@ -5,12 +5,6 @@ module.exports = class extends window.casthub.module {
     constructor() {
         super();
 
-        // Labels
-        this.followers = [];
-
-        // Keeps track of the current recent follower
-        this.cursor = 0;
-
         // UI
         this.$header = window.casthub.create('header');
         this.$header.icon = 'twitter';
@@ -29,10 +23,8 @@ module.exports = class extends window.casthub.module {
         await super.mounted();
 
         await this.fetch();
-        await this.update();
 
         setInterval(() => this.fetch(), 1000*60);
-        setInterval(() => this.update(), 1000*5);
     }
 
     async fetch() {
@@ -40,39 +32,47 @@ module.exports = class extends window.casthub.module {
         try {
             let data = {};
 
-            // Grab all the data we want/need for labels here
-            const response = await window.casthub.fetch({
+            /* Get Followers */
+            // const followers = await window.casthub.fetch({
+            //     integration: 'twitter',
+            //     method: 'GET',
+            //     url: 'followers/list',
+            // });
+
+            // let recentFollowers = followers.users.slice(0,5);
+            // data.followers = recentFollowers.map(follower => {
+            //     return follower.screen_name;
+            // });
+            
+            /* Get Mentions */
+            const mentionsResponse = await window.casthub.fetch({
                 integration: 'twitter',
                 method: 'GET',
-                url: 'followers/list',
+                url: 'statuses/mentions_timeline',
+            });   
+
+            const mentions = Object.values(mentionsResponse);
+            mentions.pop(); //Removes the status
+
+            console.log(mentions);
+            
+            const recentMentions = mentions.map(mention => {
+                return {
+                    "displayName": mention.user.name,
+                    "screenName": mention.user.screen_name,
+                    "content": mention.text,
+                    "avatar": mention.user.profile_image_url_https
+                };
             });
 
-            // Grab the newest 5 followers from the response
-            let recentFollowers = response.users.slice(0,5);
-
-            data.followers = recentFollowers.map(follower => {
-                return follower.screen_name;
-            });
+            data.tweets = recentMentions;
 
             await this.filesystem.set('data', data);
 
-            this.followers = data.followers;
-
         } catch (e) {
-            await this.filesystem.set('data', {});
+            // await this.filesystem.set('data', {});
             console.log(e);
         }
-
-    }
-
-    async update() {
-        // Run logic to update label files here
-        await this.filesystem.set('latestFollower', this.followers[0]);
-
-        // Cycle through recent followers
-        if(this.cursor >= this.followers.length) { this.cursor = 0; }
-        await this.filesystem.set('recentFollowers', this.followers[this.cursor]);
-        this.cursor++;
     }
 
 };
