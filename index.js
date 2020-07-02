@@ -53,8 +53,6 @@ module.exports = class extends window.casthub.module {
 
             const mentions = Object.values(mentionsResponse);
             mentions.pop(); //Removes the status
-
-            console.log(mentions);
             
             const recentMentions = mentions.map(mention => {
                 return {
